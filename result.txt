@@ -1,0 +1,81 @@
+go run client/main.go 
+[*] MCPサーバーを起動中: ./mcp-date/date-server
+
+--- ステップ1: initialize ---
+[送信 DTO] {JSONRPC:2.0 ID:init-go-1 Method:initialize Params:{Meta:map[] ProtocolVersion:2025-11-25 Capabilities:{Experimental:map[] Roots:0xc000012120 Sampling:0xc000014130 Elicitation:<nil> Tools:<nil>} ClientInfo:{Name:scratch-client-go Version:1.0.0 Title: Description: WebsiteURL: Icons:[]}}}
+[送信 JSON] {"jsonrpc":"2.0","id":"init-go-1","method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{"roots":{"listChanged":true},"sampling":{"context":{},"tools":{}}},"clientInfo":{"name":"scratch-client-go","version":"1.0.0"}}}
+[受信 DTO] {JSONRPC:2.0 ID:init-go-1 Result:map[capabilities:map[completions:map[] prompts:map[listChanged:true] resources:map[listChanged:true subscribe:true] tools:map[listChanged:true]] protocolVersion:2025-11-25 serverInfo:map[name:date-server version:0.1.0]] Error:<nil>}
+
+--- ステップ2: initialized ---
+[送信 DTO] {JSONRPC:2.0 Method:notifications/initialized Params:map[]}
+[送信 JSON] {"jsonrpc":"2.0","method":"notifications/initialized"}
+
+--- ステップ3: prompts/list ---
+[送信 DTO] {JSONRPC:2.0 ID:prompts-list-1 Method:prompts/list Params:{Meta:map[] Cursor:}}
+[送信 JSON] {"jsonrpc":"2.0","id":"prompts-list-1","method":"prompts/list","params":{}}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/tools/list_changed Params:map[]}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/prompts/list_changed Params:map[]}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/resources/list_changed Params:map[]}
+[受信 DTO] {JSONRPC:2.0 ID:prompts-list-1 Result:map[prompts:[map[arguments:[map[description:City name (e.g., Tokyo, Paris) name:city required:true]] description:Builds a user prompt to ask the current time in a city. name:city_time_prompt title:City Time Prompt]]] Error:<nil>}
+[*] 利用可能なプロンプト: city_time_prompt
+
+--- ステップ4: プロンプト取得 (city_time_prompt) ---
+[送信 DTO] {JSONRPC:2.0 ID:prompts-get-1 Method:prompts/get Params:{Meta:map[] Name:city_time_prompt Arguments:map[city:Tokyo]}}
+[送信 JSON] {"jsonrpc":"2.0","id":"prompts-get-1","method":"prompts/get","params":{"name":"city_time_prompt","arguments":{"city":"Tokyo"}}}
+[受信 DTO] {JSONRPC:2.0 ID:prompts-get-1 Result:map[description:Prompt for asking city current time. messages:[map[content:map[text:What is the current local time in Tokyo? type:text] role:user]]] Error:<nil>}
+[*] prompts/get 結果:
+{"description":"Prompt for asking city current time.","messages":[{"role":"user","content":{"type":"text","text":"What is the current local time in Tokyo?"}}]}
+
+--- ステップ5: resources/list ---
+[送信 DTO] {JSONRPC:2.0 ID:resources-list-1 Method:resources/list Params:{Meta:map[] Cursor:}}
+[送信 JSON] {"jsonrpc":"2.0","id":"resources-list-1","method":"resources/list","params":{}}
+[受信 DTO] {JSONRPC:2.0 ID:resources-list-1 Result:map[resources:[map[description:List of cities supported by get_city_date mimeType:text/plain name:supported-cities title:Supported Cities uri:resource://cities]]] Error:<nil>}
+[*] 利用可能なリソース: resource://cities
+
+--- ステップ6: resources/templates/list ---
+[送信 DTO] {JSONRPC:2.0 ID:resources-templates-list-1 Method:resources/templates/list Params:{Meta:map[] Cursor:}}
+[送信 JSON] {"jsonrpc":"2.0","id":"resources-templates-list-1","method":"resources/templates/list","params":{}}
+[受信 DTO] {JSONRPC:2.0 ID:resources-templates-list-1 Result:map[resourceTemplates:[map[description:Timezone information for a city mimeType:text/plain name:city-timezone-template title:City Timezone uriTemplate:resource://city/{city}]]] Error:<nil>}
+[*] 利用可能なリソーステンプレート: resource://city/{city}
+
+--- ステップ7: リソース取得 (resource://cities) ---
+[送信 DTO] {JSONRPC:2.0 ID:resources-read-1 Method:resources/read Params:{Meta:map[progressToken:progress-resources-read-1] URI:resource://cities}}
+[送信 JSON] {"jsonrpc":"2.0","id":"resources-read-1","method":"resources/read","params":{"_meta":{"progressToken":"progress-resources-read-1"},"uri":"resource://cities"}}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:started progress:0 progressToken:progress-resources-read-1 total:1]}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:completed progress:1 progressToken:progress-resources-read-1 total:1]}
+[受信 DTO] {JSONRPC:2.0 ID:resources-read-1 Result:map[contents:[map[mimeType:text/plain text:Dubai
+London
+Los Angeles
+New York
+Paris
+Seoul
+Sydney
+Tokyo uri:resource://cities]]] Error:<nil>}
+[*] resources/read 結果:
+{"contents":[{"uri":"resource://cities","mimeType":"text/plain","text":"Dubai\nLondon\nLos Angeles\nNew York\nParis\nSeoul\nSydney\nTokyo"}]}
+
+--- ステップ8: completion/complete ---
+[送信 DTO] {JSONRPC:2.0 ID:completion-1 Method:completion/complete Params:{Meta:map[progressToken:progress-completion-1] Ref:{Type:ref/prompt Name:city_time_prompt Title:} Argument:{Name:city Value:To} Context:<nil>}}
+[送信 JSON] {"jsonrpc":"2.0","id":"completion-1","method":"completion/complete","params":{"_meta":{"progressToken":"progress-completion-1"},"ref":{"type":"ref/prompt","name":"city_time_prompt"},"argument":{"name":"city","value":"To"}}}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:started progress:0 progressToken:progress-completion-1 total:1]}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:completed progress:1 progressToken:progress-completion-1 total:1]}
+[受信 DTO] {JSONRPC:2.0 ID:completion-1 Result:map[completion:map[total:1 values:[Tokyo]]] Error:<nil>}
+[*] completion/complete 結果:
+{"completion":{"values":["Tokyo"],"total":1}}
+
+--- ステップ9: tools/list ---
+[送信 DTO] {JSONRPC:2.0 ID:tools-list-1 Method:tools/list Params:{Meta:map[] Cursor:}}
+[送信 JSON] {"jsonrpc":"2.0","id":"tools-list-1","method":"tools/list","params":{}}
+[受信 DTO] {JSONRPC:2.0 ID:tools-list-1 Result:map[tools:[map[description:Get the current date and time for a specific city inputSchema:map[properties:map[city:map[description:The name of the city (e.g., 'New York', 'Tokyo') type:string]] required:[city] type:object] name:get_city_date]]] Error:<nil>}
+[*] 利用可能なツール: get_city_date
+
+--- ステップ10: ツールの実行 (get_city_date) ---
+[送信 DTO] {JSONRPC:2.0 ID:call-go-1 Method:tools/call Params:{Meta:map[progressToken:progress-tools-call-1] Name:get_city_date Arguments:map[city:Tokyo] Task:<nil>}}
+[送信 JSON] {"jsonrpc":"2.0","id":"call-go-1","method":"tools/call","params":{"_meta":{"progressToken":"progress-tools-call-1"},"name":"get_city_date","arguments":{"city":"Tokyo"}}}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:started progress:0 progressToken:progress-tools-call-1 total:1]}
+[受信 Notification] {JSONRPC:2.0 Method:notifications/progress Params:map[message:completed progress:1 progressToken:progress-tools-call-1 total:1]}
+[受信 DTO] {JSONRPC:2.0 ID:call-go-1 Result:map[content:[map[text:Time in Tokyo: Sat, 14 Feb 2026 11:41:51 JST type:text]]] Error:<nil>}
+[*] 実行結果:
+{"content":[{"type":"text","text":"Time in Tokyo: Sat, 14 Feb 2026 11:41:51 JST"}]}
+
+[*] プロセスを終了します。
